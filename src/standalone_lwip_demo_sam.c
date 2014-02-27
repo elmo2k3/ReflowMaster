@@ -104,6 +104,7 @@ volatile int32_t temperature_set;
 struct spi_device spi_max31855;
 
 volatile uint32_t usTicks;
+volatile uint8_t second_gone;
 
 #define PIN_BEEPER PIO_PA23_IDX
 #define PIN_SSR PIO_PA25_IDX
@@ -161,8 +162,9 @@ static void init_board(void)
 void SysTick_Handler(void)
 {
 	usTicks++;
-	if(!(usTicks % 1000000)){
+	if(!(usTicks % 1000000)){ // 1s
 		ioport_toggle_pin_level(PIN_LED_GREEN);
+		second_gone = 1;
 	}
 }
 
@@ -192,7 +194,7 @@ int main(void)
 	volatile int16_t temperature_intern;
 	volatile float f_temp_intern;
 	bool level;
-	char *hw = "hello world";
+	char str[30];
 	
 	temperature_set = 50;
 	
@@ -207,18 +209,21 @@ int main(void)
 	//SysTick_Config(SystemCoreClock/10); // 100ms
 	SysTick_Config(SystemCoreClock/1000000); // 1us
 	ks0108Init();
-	//ks0108SelectFont(1,BLACK);
+	ks0108SelectFont(2,BLACK);
 	ks0108GotoXY(0,0);
 	//ks0108ClearScreen();
-	ks0108Puts(hw);
+	ks0108Puts("Reflow");
+	ks0108GotoXY(0,25);
+	ks0108Puts("Master");
+	ks0108SelectFont(1,BLACK);
 
 	/* This is the main polling loop */
 	while (1) {
 		/* Check if any packets are available and process if they are
 		 * ready. That function also manages the lwIP timers */
 		ethernet_task();
-		if(++counter == 40000ul){
-			counter = 0;
+		if(second_gone){
+			second_gone = 0;
 			if(f_temp_extern < (float)temperature_set){
 				ioport_set_pin_level(PIN_SSR,1);
 				ioport_set_pin_level(PIN_BEEPER,0);
@@ -226,8 +231,12 @@ int main(void)
 			}else{
 				ioport_set_pin_level(PIN_BEEPER,1);
 				ioport_set_pin_level(PIN_SSR,0);
-				//ioport_set_pin_level(PIO_PD17_IDX,1);
+				//ioport_set_pin_level(PIO_PD18_IDX,1);
 			}
+			ks0108FillRect(0,55,128,9,WHITE);
+			snprintf(str,30,"Ist: %.2f  Soll: %d",f_temp_extern,temperature_set);
+			ks0108GotoXY(0,55);
+			ks0108Puts(str);
 		}
 		level = ioport_get_pin_level(PIN_BUTTON_LEFT);
 		//ioport_set_pin_level(PIN_LED_GREEN,level);

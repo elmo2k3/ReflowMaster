@@ -12,6 +12,7 @@
 #include <inttypes.h>
 #include "ks0108.h"
 #include "Comic_10.h"
+#include "arial_24.h"
 
 static lcdCoord		ks0108Coord;
 //#define ks0108FontColor BLACK
@@ -292,6 +293,8 @@ void ks0108SelectFont(uint8_t num, uint8_t color){
 	ks0108FontColor = color;
 	if(num == 1){
 		ks0108Font = Comic_10;
+	}else if(num == 2){
+		ks0108Font = Arial_24;
 	}
 }
 
@@ -441,13 +444,14 @@ void ks0108Init() {
 }
 
 void ks0108Enable(void) {
+	_delay_us(5);
 	ioport_set_pin_level(EN,1);
 	//LCD_CMD_PORT |= 0x01 << EN;						// EN high level width: min. 450ns
-	_delay_us(1);
+	_delay_us(2);
 	ioport_set_pin_level(EN,0);
 	//LCD_CMD_PORT &= ~(0x01 << EN);
 	//for(volatile uint8_t i=0; i<24; i++);			// a little delay loop (faster than reading the busy flag)
-	_delay_us(6);
+	_delay_us(5);
 }
 
 uint8_t ks0108DoReadData(uint8_t first) {
@@ -478,7 +482,7 @@ uint8_t ks0108DoReadData(uint8_t first) {
 	
 	ioport_set_pin_level(EN,1);
 	//LCD_CMD_PORT |= 0x01 << EN;						// EN high level width: min. 450ns
-	_delay_us(1);
+	_delay_us(2);
 	data = ioport_get_port_level(IOPORT_PIOA,0xFF);
 	//data = LCD_DATA_IN;								// read Data			 
 	

@@ -37,7 +37,6 @@
  */
 
 #include <inttypes.h>
-#include <avr/pgmspace.h>
 
 #ifndef ARIAL_24_H
 #define ARIAL_24_H
@@ -45,7 +44,7 @@
 #define ARIAL_24_WIDTH 10
 #define ARIAL_24_HEIGHT 24
 
-static const uint8_t Arial_24[] PROGMEM = {
+static const uint8_t Arial_24[] = {
     0x5C, 0x76, // size
     0x0A, // width
     0x18, // height
