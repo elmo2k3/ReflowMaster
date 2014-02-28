@@ -24,7 +24,8 @@
 // Command Port Bits
 #define D_I					PIO_PA9_IDX		// D/I Bit Number
 #define R_W					PIO_PA10_IDX		// R/W Bit Number
-#define EN					PIO_PA8_IDX		// EN Bit Number
+//#define EN					PIO_PA8_IDX		// EN Bit Number
+#define EN					PIO_PB1_IDX		// EN Bit Number
 #define CSEL1				PIO_PA17_IDX		// CS1 Bit Number
 #define CSEL2				PIO_PA16_IDX		// CS2 Bit Number
 #define RES_PIN				PIO_PA15_IDX

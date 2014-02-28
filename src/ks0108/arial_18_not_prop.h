@@ -37,7 +37,6 @@
  */
 
 #include <inttypes.h>
-#include <avr/pgmspace.h>
 
 #ifndef ARIAL_18_NOT_PROP_H
 #define ARIAL_18_NOT_PROP_H
@@ -45,7 +44,7 @@
 #define ARIAL_18_NOT_PROP_WIDTH 10
 #define ARIAL_18_NOT_PROP_HEIGHT 18
 
-static const uint8_t arial_18_not_prop[] PROGMEM = {
+static uint8_t arial_18_not_prop[] = {
     0x36, 0x8A, // size
     0x0A, // width
     0x12, // height

@@ -44,7 +44,7 @@
 #define COMIC_10_WIDTH 10
 #define COMIC_10_HEIGHT 11
 
-static const uint8_t Comic_10[] = {
+static uint8_t Comic_10[] = {
     0x0F, 0x8A, // size
     0x0A, // width
     0x0B, // height

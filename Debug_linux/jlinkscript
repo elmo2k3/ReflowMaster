@@ -1,0 +1,6 @@
+device ATSAM4E8C
+speed 6000
+loadbin LWIP_EXAMPLE1.bin 0
+r
+g
+exit

@@ -12,12 +12,21 @@
 #include <inttypes.h>
 #include "ks0108.h"
 #include "Comic_10.h"
+#include "arial_bold_12.h"
+#include "arial_bold_36.h"
+#include "arial_bold_30.h"
+#include "arial_18_not_prop.h"
+#include "arial_24_not_prop.h"
+#include "arial_30_not_prop.h"
 #include "arial_24.h"
 
 static lcdCoord		ks0108Coord;
 //#define ks0108FontColor BLACK
 static uint8_t ks0108FontColor;
 static uint8_t *ks0108Font;
+
+void ks0108Enable(void);
+uint8_t ks0108DoReadData(uint8_t first);
 
 void ks0108DrawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t color) {
 	uint8_t length, i, y, yAlt, xTmp, yTmp;
@@ -294,7 +303,13 @@ void ks0108SelectFont(uint8_t num, uint8_t color){
 	if(num == 1){
 		ks0108Font = Comic_10;
 	}else if(num == 2){
-		ks0108Font = Arial_24;
+		ks0108Font = Arial_Bold_12;
+	}else if(num == 3){
+		ks0108Font = arial_18_not_prop;
+	}else if(num == 4){
+		ks0108Font = arial_24_not_prop;
+	}else if(num == 5){
+		ks0108Font = arial_30_not_prop;
 	}
 }
 
@@ -430,9 +445,11 @@ void ks0108Init() {
 	ioport_set_pin_dir(RES_PIN,IOPORT_DIR_OUTPUT);
 	ioport_set_pin_level(D_I,1);
 
-	ioport_set_pin_level(RES_PIN,0);
 	_delay_ms(10);
+	ioport_set_pin_level(RES_PIN,0);
+	_delay_ms(50);
 	ioport_set_pin_level(RES_PIN,1);
+	_delay_ms(10);
 	//LCD_RES_PORT |= (1<<RES_PIN);
 	ks0108WriteCommand(LCD_ON, CHIP1);				// power on
 	ks0108WriteCommand(LCD_ON, CHIP2);
@@ -443,15 +460,15 @@ void ks0108Init() {
 	ks0108GotoXY(0,0);
 }
 
-void ks0108Enable(void) {
-	_delay_us(5);
+void ks0108Enable() {
 	ioport_set_pin_level(EN,1);
 	//LCD_CMD_PORT |= 0x01 << EN;						// EN high level width: min. 450ns
-	_delay_us(2);
+	//_delay_us(1);
+	for(volatile int i=0;i<5;i++);
 	ioport_set_pin_level(EN,0);
 	//LCD_CMD_PORT &= ~(0x01 << EN);
 	//for(volatile uint8_t i=0; i<24; i++);			// a little delay loop (faster than reading the busy flag)
-	_delay_us(5);
+	_delay_us(1);
 }
 
 uint8_t ks0108DoReadData(uint8_t first) {
@@ -481,14 +498,15 @@ uint8_t ks0108DoReadData(uint8_t first) {
 	//LCD_CMD_PORT |= 0x01 << R_W;					// R/W = 1
 	
 	ioport_set_pin_level(EN,1);
+	for(volatile int i=0;i<5;i++);
 	//LCD_CMD_PORT |= 0x01 << EN;						// EN high level width: min. 450ns
-	_delay_us(2);
+	//_delay_us(1);
 	data = ioport_get_port_level(IOPORT_PIOA,0xFF);
 	//data = LCD_DATA_IN;								// read Data			 
 	
 	ioport_set_pin_level(EN,0);
 	//LCD_CMD_PORT &= ~(0x01 << EN);
-	for(volatile uint8_t i=0; i<8; i++);
+	_delay_us(1);
 	//LCD_DATA_DIR = 0xFF;
 	ioport_set_port_dir(IOPORT_PIOA, 0xFF, IOPORT_DIR_OUTPUT);
 	
@@ -528,8 +546,8 @@ void ks0108WriteCommand(uint8_t cmd, uint8_t chip) {
 }
 
 void ks0108WriteData(uint8_t data) {
-	uint8_t displayData, yOffset, cmdPort;
-	uint8_t di_temp,rw_temp,csel1_temp,csel2_temp;
+	uint8_t displayData, yOffset;
+	uint8_t di_temp,rw_temp,csel1_temp,csel2_temp,e_temp;
 
 	if(ks0108Coord.x >= 128)
 		return;
@@ -559,6 +577,7 @@ void ks0108WriteData(uint8_t data) {
 	yOffset = ks0108Coord.y%8;
 	if(yOffset != 0) {
 		// first page
+		e_temp = ioport_get_pin_level(EN);
 		rw_temp = ioport_get_pin_level(R_W);
 		di_temp = ioport_get_pin_level(D_I);
 		csel1_temp = ioport_get_pin_level(CSEL1);
@@ -590,6 +609,7 @@ void ks0108WriteData(uint8_t data) {
 		displayData = ks0108ReadData();
 		
 		//LCD_CMD_PORT = cmdPort;						// restore command port
+		ioport_set_pin_level(EN,e_temp);
 		ioport_set_pin_level(R_W,rw_temp);
 		ioport_set_pin_level(D_I,di_temp);
 		ioport_set_pin_level(CSEL1,csel1_temp);

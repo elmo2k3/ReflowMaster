@@ -37,7 +37,6 @@
  */
 
 #include <inttypes.h>
-#include <avr/pgmspace.h>
 
 #ifndef ARIAL_BOLD_36_H
 #define ARIAL_BOLD_36_H
@@ -45,7 +44,7 @@
 #define ARIAL_BOLD_36_WIDTH 10
 #define ARIAL_BOLD_36_HEIGHT 37
 
-static const uint8_t Arial_Bold_36[] PROGMEM = {
+static const uint8_t Arial_Bold_36[] = {
     0xE5, 0xEA, // size
     0x0A, // width
     0x25, // height

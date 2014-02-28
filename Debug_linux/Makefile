@@ -175,6 +175,11 @@ C_SRCS +=  \
 ../src/network/httpserver_raw/httpd.c \
 ../src/network/timer_mgt_sam.c \
 ../src/ks0108/ks0108.c \
+../src/menu.c \
+../src/drehgeber.c \
+../src/buttons.c \
+../src/page_misc.c \
+../src/page_main.c \
 ../src/standalone_lwip_demo_sam.c
 
 
@@ -243,6 +248,11 @@ src/network/httpserver_raw/fsdata.o \
 src/network/httpserver_raw/httpd.o \
 src/network/timer_mgt_sam.o \
 src/ks0108/ks0108.o \
+src/menu.o \
+src/drehgeber.o \
+src/buttons.o \
+src/page_misc.o \
+src/page_main.o \
 src/standalone_lwip_demo_sam.o
 
 OBJS_AS_ARGS +=  \
@@ -304,6 +314,11 @@ src/network/httpserver_raw/fsdata.o \
 src/network/httpserver_raw/httpd.o \
 src/network/timer_mgt_sam.o \
 src/ks0108/ks0108.o \
+src/menu.o \
+src/drehgeber.o \
+src/buttons.o \
+src/page_misc.o \
+src/page_main.o \
 src/standalone_lwip_demo_sam.o
 
 C_DEPS +=  \
@@ -365,6 +380,11 @@ src/network/httpserver_raw/fsdata.d \
 src/network/httpserver_raw/httpd.d \
 src/network/timer_mgt_sam.d \
 src/ks0108/ks0108.d \
+src/menu.d \
+src/drehgeber.d \
+src/buttons.d \
+src/page_misc.d \
+src/page_main.d \
 src/standalone_lwip_demo_sam.d
 
 C_DEPS_AS_ARGS +=  \
@@ -426,6 +446,11 @@ src/network/httpserver_raw/fsdata.d \
 src/network/httpserver_raw/httpd.d \
 src/network/timer_mgt_sam.d \
 src/ks0108/ks0108.d \
+src/menu.d \
+src/drehgeber.d \
+src/buttons.d \
+src/page_misc.d \
+src/page_main.d \
 src/standalone_lwip_demo_sam.d
 
 OUTPUT_FILE_PATH +=LWIP_EXAMPLE1.elf

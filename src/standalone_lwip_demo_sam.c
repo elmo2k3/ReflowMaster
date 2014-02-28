@@ -98,6 +98,9 @@
 #include "stdio_serial.h"
 #include "spi_master.h"
 #include "ks0108/ks0108.h"
+#include "buttons.h"
+#include "drehgeber.h"
+#include "menu.h"
 
 volatile float f_temp_extern;
 volatile int32_t temperature_set;
@@ -109,7 +112,6 @@ volatile uint8_t second_gone;
 #define PIN_BEEPER PIO_PA23_IDX
 #define PIN_SSR PIO_PA25_IDX
 #define PIN_LED_GREEN PIO_PD17_IDX
-#define PIN_BUTTON_LEFT PIO_PA19_IDX
 
 /**
  * \brief Set peripheral mode for IOPORT pins.
@@ -154,15 +156,18 @@ static void init_board(void)
 	ioport_set_pin_dir(PIO_PD27_IDX,IOPORT_DIR_OUTPUT);
 	ioport_set_pin_dir(PIN_BEEPER,IOPORT_DIR_OUTPUT);
 	ioport_set_pin_level(PIN_BEEPER,0);
-
-	ioport_set_pin_dir(PIN_BUTTON_LEFT,IOPORT_DIR_INPUT);
-	ioport_set_pin_mode(PIN_BUTTON_LEFT,IOPORT_MODE_PULLUP | IOPORT_MODE_DEBOUNCE);
 }
 
 void SysTick_Handler(void)
 {
 	usTicks++;
-	if(!(usTicks % 1000000)){ // 1s
+	if(!(usTicks % 100ul)){ // 0.001s
+		drehgeber_work();
+	}
+	if(!(usTicks % 1000ul)){ // 0.01s
+		buttons_every_10_ms();
+	}
+	if(!(usTicks % 100000ul)){ // 1s
 		ioport_toggle_pin_level(PIN_LED_GREEN);
 		second_gone = 1;
 	}
@@ -201,21 +206,17 @@ int main(void)
 	/* Initialize the SAM system */
 	sysclk_init();
 	init_board();
+	buttons_init();
+	drehgeber_init();
 
 	/* Configure debug uart */
 
 	/* Bring up the ethernet interface & initializes timer0, channel0 */
 	init_ethernet();
 	//SysTick_Config(SystemCoreClock/10); // 100ms
-	SysTick_Config(SystemCoreClock/1000000); // 1us
+	SysTick_Config(SystemCoreClock/100000); // 1us
 	ks0108Init();
-	ks0108SelectFont(2,BLACK);
-	ks0108GotoXY(0,0);
-	//ks0108ClearScreen();
-	ks0108Puts("Reflow");
-	ks0108GotoXY(0,25);
-	ks0108Puts("Master");
-	ks0108SelectFont(1,BLACK);
+	menu_init();
 
 	/* This is the main polling loop */
 	while (1) {
@@ -233,13 +234,7 @@ int main(void)
 				ioport_set_pin_level(PIN_SSR,0);
 				//ioport_set_pin_level(PIO_PD18_IDX,1);
 			}
-			ks0108FillRect(0,55,128,9,WHITE);
-			snprintf(str,30,"Ist: %.2f  Soll: %d",f_temp_extern,temperature_set);
-			ks0108GotoXY(0,55);
-			ks0108Puts(str);
 		}
-		level = ioport_get_pin_level(PIN_BUTTON_LEFT);
-		//ioport_set_pin_level(PIN_LED_GREEN,level);
 		spi_select_device(SPI,&spi_max31855);
 		spi_write(SPI,data,0,0);
 		while((spi_read_status(SPI) & SPI_SR_RDRF) == 0);
@@ -252,5 +247,7 @@ int main(void)
 		f_temp_intern = temperature_intern / 16.0;
 		f_temp_extern = temperature_extern / 4.0;
 		spi_deselect_device(SPI,&spi_max31855);
+
+		menu_task();
 	}
 }
