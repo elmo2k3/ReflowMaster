@@ -11,6 +11,7 @@ extern uint8_t heating;
 void controller_init(void);
 void controller_tick(void);
 void controller_task(void);
+void controller_beep_short(void);
 
 #endif
 
