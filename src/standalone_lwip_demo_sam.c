@@ -104,6 +104,7 @@
 
 volatile float f_temp_extern;
 volatile int32_t temperature_set;
+volatile int32_t heating;
 struct spi_device spi_max31855;
 
 volatile uint32_t usTicks;
@@ -167,6 +168,9 @@ void SysTick_Handler(void)
 	if(!(usTicks % 1000ul)){ // 0.01s
 		buttons_every_10_ms();
 	}
+	if(!(usTicks % 10000ul)){ // 0.1s
+		menu_tick();
+	}
 	if(!(usTicks % 100000ul)){ // 1s
 		ioport_toggle_pin_level(PIN_LED_GREEN);
 		second_gone = 1;
@@ -201,7 +205,7 @@ int main(void)
 	bool level;
 	char str[30];
 	
-	temperature_set = 50;
+	temperature_set = 20;
 	
 	/* Initialize the SAM system */
 	sysclk_init();
@@ -226,10 +230,12 @@ int main(void)
 		if(second_gone){
 			second_gone = 0;
 			if(f_temp_extern < (float)temperature_set){
+				heating = 1;
 				ioport_set_pin_level(PIN_SSR,1);
 				ioport_set_pin_level(PIN_BEEPER,0);
 				//ioport_set_pin_level(PIO_PD17_IDX,0);
 			}else{
+				heating = 0;
 				ioport_set_pin_level(PIN_BEEPER,1);
 				ioport_set_pin_level(PIN_SSR,0);
 				//ioport_set_pin_level(PIO_PD18_IDX,1);
