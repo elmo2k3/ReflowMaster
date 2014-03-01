@@ -24,32 +24,26 @@
 #include "buttons.h"
 #include "page_main.h"
 #include "page_misc.h"
+#include "controller.h"
+#include "thermocouple.h"
 
 static uint8_t focus_not_here = 1;
 static uint8_t state;
 
 static uint8_t toggle = 0;
 
-extern float f_temp_extern;
-extern int32_t temperature_set;
-extern int32_t heating;
-
-
-struct _settings{
-    int32_t temperature;
-    int32_t on;
-}settings;
-
-void page_main_settings_init()
-{
-    settings.temperature = 20;
-    settings.on = 8;
-}
-
 enum cursor_state {
     STATE_IDLE,
     STATE_TEMPERATURE
 };
+
+struct _settings settings;
+
+void page_main_settings_init()
+{
+    settings.temperature = 20;
+    settings.on = 0;
+}
 
 void printTemperatureIs(uint8_t update)
 {
@@ -61,7 +55,7 @@ void printTemperatureIs(uint8_t update)
         last_val = -1;
     }
     
-    current_val = f_temp_extern;
+    current_val = temperature_is;
 
     if (current_val != last_val) {
         ks0108SelectFont(1, BLACK);
@@ -86,7 +80,7 @@ void printTemperatureSet(uint8_t toggle)
     static int16_t last_val = -1;
     int16_t current_val;
 
-    current_val = temperature_set;
+    current_val = settings.temperature;
 
     if (current_val != last_val) {
         ks0108SelectFont(1, BLACK);
@@ -104,12 +98,23 @@ void printTemperatureSet(uint8_t toggle)
     }
 }
 
+void printOn(uint8_t on)
+{
+    if(on){
+        ks0108SelectFont(1, BLACK);
+        ks0108GotoXY(90, 55);
+        ks0108Puts("ON");
+    }else{
+        ks0108FillRect(90,55,57,10,WHITE);
+    }
+}
+
 void printHeating(uint8_t on)
 {
     if(on){
         ks0108SelectFont(1, BLACK);
         ks0108GotoXY(0, 55);
-        ks0108Puts("HEAT ON");
+        ks0108Puts("HEATING");
     }else{
         ks0108FillRect(0,55,57,10,WHITE);
     }
@@ -131,6 +136,7 @@ void update_main(struct menuitem *self, uint8_t event)
     printTemperatureIs(0);
     printTemperatureSet(0);
     printHeating(heating);
+    printOn(settings.on);
     switch (state) {
     case STATE_TEMPERATURE:
         printTemperatureSet(toggle == 0);
@@ -144,7 +150,9 @@ uint8_t main_button_pressed(struct menuitem *self, uint8_t button)
 {
 
     toggle = 0;
-    if (button == 2) {
+    if(button == 1){
+        settings.on ^= 1;
+    }else if (button == 2) {
         focus_not_here = 0;
         if (state == STATE_IDLE) {
             state = STATE_TEMPERATURE;
@@ -152,7 +160,6 @@ uint8_t main_button_pressed(struct menuitem *self, uint8_t button)
             state = STATE_IDLE;
             focus_not_here = 1;
         }
-    } else if (button == 1) {
     } else if (button == 3) {
     }
 
@@ -169,7 +176,7 @@ void main_drehgeber(struct menuitem *self, int8_t steps)
             settings.temperature = 20;
         if (settings.temperature > 260)
             settings.temperature = 260;
-        temperature_set = settings.temperature;
+        settings.temperature;
         printTemperatureSet(0);
         break;
     }

@@ -180,6 +180,8 @@ C_SRCS +=  \
 ../src/buttons.c \
 ../src/page_misc.c \
 ../src/page_main.c \
+../src/thermocouple.c \
+../src/controller.c \
 ../src/standalone_lwip_demo_sam.c
 
 
@@ -253,6 +255,8 @@ src/drehgeber.o \
 src/buttons.o \
 src/page_misc.o \
 src/page_main.o \
+src/thermocouple.o \
+src/controller.o \
 src/standalone_lwip_demo_sam.o
 
 OBJS_AS_ARGS +=  \
@@ -319,6 +323,8 @@ src/drehgeber.o \
 src/buttons.o \
 src/page_misc.o \
 src/page_main.o \
+src/thermocouple.o \
+src/controller.o \
 src/standalone_lwip_demo_sam.o
 
 C_DEPS +=  \
@@ -385,6 +391,8 @@ src/drehgeber.d \
 src/buttons.d \
 src/page_misc.d \
 src/page_main.d \
+src/thermocouple.d \
+src/controller.d \
 src/standalone_lwip_demo_sam.d
 
 C_DEPS_AS_ARGS +=  \
@@ -451,6 +459,8 @@ src/drehgeber.d \
 src/buttons.d \
 src/page_misc.d \
 src/page_main.d \
+src/thermocouple.d \
+src/controller.d \
 src/standalone_lwip_demo_sam.d
 
 OUTPUT_FILE_PATH +=LWIP_EXAMPLE1.elf

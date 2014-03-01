@@ -23,6 +23,13 @@
 
 #include "menu.h"
 
+struct _settings{
+    int32_t temperature;
+    int32_t on;
+};
+
+extern struct _settings settings;
+
 void update_main(struct menuitem *self, uint8_t event);
 void page_main(struct menuitem *self);
 uint8_t main_button_pressed(struct menuitem *self, uint8_t button);

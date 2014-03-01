@@ -96,36 +96,18 @@
 #include "sysclk.h"
 #include "ioport.h"
 #include "stdio_serial.h"
-#include "spi_master.h"
 #include "ks0108/ks0108.h"
 #include "buttons.h"
 #include "drehgeber.h"
 #include "menu.h"
-
-volatile float f_temp_extern;
-volatile int32_t temperature_set;
-volatile int32_t heating;
-struct spi_device spi_max31855;
+#include "thermocouple.h"
+#include "controller.h"
 
 volatile uint32_t usTicks;
 volatile uint8_t second_gone;
 
-#define PIN_BEEPER PIO_PA23_IDX
-#define PIN_SSR PIO_PA25_IDX
 #define PIN_LED_GREEN PIO_PD17_IDX
 
-/**
- * \brief Set peripheral mode for IOPORT pins.
- * It will configure port mode and disable pin mode (but enable peripheral).
- * \param port IOPORT port to configure
- * \param masks IOPORT pin masks to configure
- * \param mode Mode masks to configure for the specified pin (\ref ioport_modes)
- */
-#define ioport_set_port_peripheral_mode(port, masks, mode) \
-	do {\
-		ioport_set_port_mode(port, masks, mode);\
-		ioport_disable_port(port, masks);\
-	} while (0)
 /**
  *  \brief Configure board PIOs.
  */
@@ -139,24 +121,10 @@ static void init_board(void)
 	//		PINS_UART0_MASK);
 	ioport_init();
 
-	spi_max31855.id = 0;
-	ioport_set_port_peripheral_mode(IOPORT_PIOA,PIO_PA11A_NPCS0 | PIO_PA12A_MISO | PIO_PA14A_SPCK,
-									PIO_PA11A_NPCS0 | PIO_PA12A_MISO | PIO_PA14A_SPCK);
-
-	spi_master_init(SPI);
-	spi_master_setup_device(SPI, &spi_max31855,SPI_MODE_0, 1000000ul, 0);
-	spi_set_bits_per_transfer(SPI,0,SPI_CSR_BITS_16_BIT);
-	spi_enable(SPI);
-	
 	ioport_set_pin_dir(PIN_LED_GREEN,IOPORT_DIR_OUTPUT);
 	ioport_set_pin_level(PIN_LED_GREEN,1);
 
-	ioport_set_pin_dir(PIN_SSR,IOPORT_DIR_OUTPUT);
-	ioport_set_pin_level(PIN_SSR,0);
-
 	ioport_set_pin_dir(PIO_PD27_IDX,IOPORT_DIR_OUTPUT);
-	ioport_set_pin_dir(PIN_BEEPER,IOPORT_DIR_OUTPUT);
-	ioport_set_pin_level(PIN_BEEPER,0);
 }
 
 void SysTick_Handler(void)
@@ -170,9 +138,9 @@ void SysTick_Handler(void)
 	}
 	if(!(usTicks % 10000ul)){ // 0.1s
 		menu_tick();
+		controller_tick();
 	}
 	if(!(usTicks % 100000ul)){ // 1s
-		ioport_toggle_pin_level(PIN_LED_GREEN);
 		second_gone = 1;
 	}
 }
@@ -197,28 +165,20 @@ void _delay_ms(uint32_t us)
 int main(void)
 {
 	uint32_t counter = 0;
-	uint16_t data;
-	uint8_t uc_pcs = 0;
-	volatile int16_t temperature_extern;
-	volatile int16_t temperature_intern;
-	volatile float f_temp_intern;
 	bool level;
 	char str[30];
-	
-	temperature_set = 20;
 	
 	/* Initialize the SAM system */
 	sysclk_init();
 	init_board();
 	buttons_init();
 	drehgeber_init();
-
-	/* Configure debug uart */
+	thermocouple_init();
+	controller_init();
 
 	/* Bring up the ethernet interface & initializes timer0, channel0 */
 	init_ethernet();
-	//SysTick_Config(SystemCoreClock/10); // 100ms
-	SysTick_Config(SystemCoreClock/100000); // 1us
+	SysTick_Config(SystemCoreClock/100000); // 10us
 	ks0108Init();
 	menu_init();
 
@@ -227,33 +187,13 @@ int main(void)
 		/* Check if any packets are available and process if they are
 		 * ready. That function also manages the lwIP timers */
 		ethernet_task();
+		thermocouple_task();
+		controller_task();
+		menu_task();
+
 		if(second_gone){
 			second_gone = 0;
-			if(f_temp_extern < (float)temperature_set){
-				heating = 1;
-				ioport_set_pin_level(PIN_SSR,1);
-				ioport_set_pin_level(PIN_BEEPER,0);
-				//ioport_set_pin_level(PIO_PD17_IDX,0);
-			}else{
-				heating = 0;
-				ioport_set_pin_level(PIN_BEEPER,1);
-				ioport_set_pin_level(PIN_SSR,0);
-				//ioport_set_pin_level(PIO_PD18_IDX,1);
-			}
+			ioport_toggle_pin_level(PIN_LED_GREEN);
 		}
-		spi_select_device(SPI,&spi_max31855);
-		spi_write(SPI,data,0,0);
-		while((spi_read_status(SPI) & SPI_SR_RDRF) == 0);
-		spi_read(SPI,&data,&uc_pcs);
-		temperature_extern = ((data>>2) & 0x3FFF);
-		spi_write(SPI,data,0,0);
-		while((spi_read_status(SPI) & SPI_SR_RDRF) == 0);
-		spi_read(SPI,&data,&uc_pcs);
-		temperature_intern = ((data>>4) & 0xFFF);
-		f_temp_intern = temperature_intern / 16.0;
-		f_temp_extern = temperature_extern / 4.0;
-		spi_deselect_device(SPI,&spi_max31855);
-
-		menu_task();
 	}
 }

@@ -39,6 +39,8 @@
 #include "httpd.h"
 #include "lwip/tcp.h"
 #include "fs.h"
+#include "thermocouple.h" // temperature_is
+#include "page_main.h" // settings.temperature
 
 struct http_state {
   char *file;
@@ -141,8 +143,6 @@ http_sent(void *arg, struct tcp_pcb *pcb, u16_t len)
   return ERR_OK;
 }
 
-extern volatile float f_temp_extern; // from standalone_lwip_demo_sam.c
-extern volatile int32_t temperature_set; // from standalone_lwip_demo_sam.c
 /*-----------------------------------------------------------------------------------*/
 static err_t
 http_recv(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
@@ -180,7 +180,7 @@ http_recv(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
 		} else if(*(char *)(data+4) == '/' &&
 			*(char *)(data+5) == 's')
 		{
-			temperature_set = (*(char *)(data+6)-48)*100 +
+			settings.temperature = (*(char *)(data+6)-48)*100 +
 								(*(char *)(data+7)-48)*10 +
 								(*(char *)(data+8)-48);
         } else if (!fs_open((char *)data + 4, &file)) {
@@ -189,7 +189,7 @@ http_recv(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
 
         //hs->file = file.data;
         //hs->left = file.len;
-		snprintf(string_to_send,100,"%ld",(int32_t)f_temp_extern);
+		snprintf(string_to_send,100,"%ld",(int32_t)temperature_is);
 		hs->file = string_to_send;
 		hs->left = strlen(string_to_send);
         /* printf("data %p len %ld\n", hs->file, hs->left);*/
