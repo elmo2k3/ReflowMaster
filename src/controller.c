@@ -1,5 +1,5 @@
 #include "controller.h"
-#include "page_main.h"
+#include "settings.h"
 #include "thermocouple.h"
 
 #define TICK_1S 1

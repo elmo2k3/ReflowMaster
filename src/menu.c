@@ -2,6 +2,7 @@
 #include "ioport.h"
 #include "page_misc.h"
 #include "page_main.h"
+#include "page_network.h"
 #include "buttons.h"
 #include "drehgeber.h"
 
@@ -20,7 +21,7 @@ uint8_t focus_here;
 static struct menuitem menu[] = {
 //    Page Name | Number | Periodic | Drehgeber | Button | Init page
     {"Reflow Master", 0, update_main, main_drehgeber, main_button_pressed, page_main},
-    {"Temperature Curve", 0, update_main, main_drehgeber, main_button_pressed, page_main}
+    {"Network Settings", 0, update_network, network_drehgeber, network_button_pressed, page_network}
 };
 
 void menu_init()
@@ -28,8 +29,6 @@ void menu_init()
     //NUM_PAGES = sizeof(struct menuitem) * sizeof(menu);
     NUM_PAGES = 2;
 
-    page_main_settings_init();
-    
     draw_page_header(&menu[menu_position]);
     menu[menu_position].draw_func(&menu[menu_position]);
     focus_here = 1;

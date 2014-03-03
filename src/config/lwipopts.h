@@ -61,7 +61,7 @@
 /* These options can be configured by the user in the standalone demo default demo */
 #define HTTP_RAW_USED
 // #undef HTTP_RAW_USED
-//#define DHCP_USED
+#define DHCP_USED
 // #undef DHCP_USED
 
 

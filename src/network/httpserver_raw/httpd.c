@@ -40,7 +40,7 @@
 #include "lwip/tcp.h"
 #include "fs.h"
 #include "thermocouple.h" // temperature_is
-#include "page_main.h" // settings.temperature
+#include "settings.h" // settings.temperature
 
 struct http_state {
   char *file;

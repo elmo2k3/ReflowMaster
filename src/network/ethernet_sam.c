@@ -76,6 +76,8 @@
 #include "httpd.h"
 #endif
 
+#include "settings.h"
+
 /* Global variable containing MAC Config (hw addr, IP, GW, ...) */
 struct netif gs_net_if;
 
@@ -146,24 +148,22 @@ static void ethernet_configure_interface(void)
 	struct ip_addr x_ip_addr, x_net_mask, x_gateway;
 	extern err_t ethernetif_init(struct netif *netif);
 
-#if defined(DHCP_USED)
-	x_ip_addr.addr = 0;
-	x_net_mask.addr = 0;
-#else
-	/* Default ip addr */
-	IP4_ADDR(&x_ip_addr, ETHERNET_CONF_IPADDR0, ETHERNET_CONF_IPADDR1,
-			ETHERNET_CONF_IPADDR2, ETHERNET_CONF_IPADDR3);
+	if(settings.net.dhcp){
+		x_ip_addr.addr = 0;
+		x_net_mask.addr = 0;
+	}else{
+		/* Default ip addr */
+		IP4_ADDR(&x_ip_addr, settings.net.ip1, settings.net.ip2,
+				settings.net.ip3, settings.net.ip4);
 
-	/* Default subnet mask */
-	IP4_ADDR(&x_net_mask, ETHERNET_CONF_NET_MASK0, ETHERNET_CONF_NET_MASK1,
-			ETHERNET_CONF_NET_MASK2, ETHERNET_CONF_NET_MASK3);
+		/* Default subnet mask */
+		IP4_ADDR(&x_net_mask, settings.net.netmask1, settings.net.netmask2,
+				settings.net.netmask3, settings.net.netmask4);
 
-	/* Default gateway addr */
-	IP4_ADDR(&x_gateway, ETHERNET_CONF_GATEWAY_ADDR0,
-			ETHERNET_CONF_GATEWAY_ADDR1,
-			ETHERNET_CONF_GATEWAY_ADDR2,
-			ETHERNET_CONF_GATEWAY_ADDR3);
-#endif
+		/* Default gateway addr */
+		IP4_ADDR(&x_gateway, settings.net.gw1, settings.net.gw2,
+				settings.net.gw3, settings.net.gw4);
+	}
 
 	/* Add data to netif */
 	netif_add(&gs_net_if, &x_ip_addr, &x_net_mask, &x_gateway, NULL,
@@ -176,13 +176,13 @@ static void ethernet_configure_interface(void)
 	netif_set_status_callback(&gs_net_if, status_callback);
 
 	/* Bring it up */
-#if defined(DHCP_USED)
-	printf("LwIP: DHCP Started");
-	dhcp_start(&gs_net_if);
-#else
-	printf("LwIP: Static IP Address Assigned");
-	netif_set_up(&gs_net_if);
-#endif
+	if(settings.net.dhcp){
+		printf("LwIP: DHCP Started");
+		dhcp_start(&gs_net_if);
+	}else{
+		printf("LwIP: Static IP Address Assigned");
+		netif_set_up(&gs_net_if);
+	}
 }
 
 /** \brief Create ethernet task, for ethernet management.
@@ -212,11 +212,18 @@ void init_ethernet(void)
  */
 void status_callback(struct netif *netif)
 {
+	uint32_t s_addr;
+
 	int8_t c_mess[25];
 	if (netif_is_up(netif)) {
 		printf("Network up");
 		strcpy((char*)c_mess, "IP=");
 		strcat((char*)c_mess, inet_ntoa(*(struct in_addr *)&(netif->ip_addr)));
+		s_addr = ip4_addr_get_u32(&netif->ip_addr);
+		settings.net.ip4 = (s_addr>>24);
+		settings.net.ip3 = (s_addr>>16);
+		settings.net.ip2 = (s_addr>>8);
+		settings.net.ip1 = (s_addr>>0);
 		printf((char const*)c_mess);
 	} else {
 		printf("Network down");

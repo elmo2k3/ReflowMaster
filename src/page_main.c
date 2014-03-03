@@ -25,6 +25,7 @@
 #include "page_misc.h"
 #include "controller.h"
 #include "thermocouple.h"
+#include "settings.h"
 
 static uint8_t focus_not_here = 1;
 static uint8_t state;
@@ -35,14 +36,6 @@ enum cursor_state {
     STATE_IDLE,
     STATE_TEMPERATURE
 };
-
-struct _settings settings;
-
-void page_main_settings_init()
-{
-    settings.temperature = 20;
-    settings.on = 0;
-}
 
 void printTemperatureIs(uint8_t update)
 {

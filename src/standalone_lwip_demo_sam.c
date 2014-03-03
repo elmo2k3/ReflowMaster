@@ -102,6 +102,7 @@
 #include "menu.h"
 #include "thermocouple.h"
 #include "controller.h"
+#include "settings.h"
 
 volatile uint32_t usTicks;
 volatile uint8_t second_gone;
@@ -168,6 +169,7 @@ int main(void)
 	bool level;
 	char str[30];
 	
+	settings_init();
 	/* Initialize the SAM system */
 	sysclk_init();
 	init_board();
