@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2014 Bjoern Biesenbach <bjoern at bjoern-b.de>
- *               2014 homerj00			<homerj00 at web.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
