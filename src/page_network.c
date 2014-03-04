@@ -36,22 +36,23 @@ static enum cursor_state {
 
 void draw_frequency_start(void)
 {
-    char f_val[10];
+    char f_val[20];
 
-    snprintf(f_val,10,"%d",settings.net.ip1); 
-    draw_settings_line(("IP1"),f_val,0);
-}
-
-void draw_frequency_stop(void)
-{
-    char f_val[10];
-
-    snprintf(f_val,10,"%d",settings.net.ip2); 
-    draw_settings_line(("IP2"),f_val,1);
-    snprintf(f_val,10,"%d",settings.net.ip3); 
-    draw_settings_line(("IP3"),f_val,2);
-    snprintf(f_val,10,"%d",settings.net.ip4); 
-    draw_settings_line(("IP4"),f_val,3);
+    if(settings.net.dhcp){
+        strcpy(f_val,"DHCP");
+    }else{
+        strcpy(f_val,"Static");
+    }
+    draw_settings_line_variable_space("Configuration",f_val,0,80);
+    snprintf(f_val,20,"%03d.%03d.%03d.%03d",settings.net.ip1,settings.net.ip2,
+    settings.net.ip3,settings.net.ip4); 
+    draw_settings_line_variable_space(("Address"),f_val,1,60);
+    snprintf(f_val,20,"%03d.%03d.%03d.%03d",settings.net.netmask1,settings.net.netmask2,
+    settings.net.netmask3,settings.net.netmask4); 
+    draw_settings_line_variable_space(("Netmask"),f_val,2,60);
+    snprintf(f_val,20,"%03d.%03d.%03d.%03d",settings.net.gw1,settings.net.gw2,
+    settings.net.gw3,settings.net.gw4); 
+    draw_settings_line_variable_space(("Gateway"),f_val,3,60);
 }
 
 void page_network(struct menuitem *self)
@@ -59,7 +60,6 @@ void page_network(struct menuitem *self)
     clear_page_main();
     ks0108SelectFont(1, BLACK);
     draw_frequency_start();
-    draw_frequency_stop();
 }
 
 void update_network(struct menuitem *self, uint8_t event)
