@@ -184,6 +184,7 @@ C_SRCS +=  \
 ../src/controller.c \
 ../src/settings.c \
 ../src/page_network.c \
+../src/page_profile.c \
 ../src/standalone_lwip_demo_sam.c
 
 
@@ -261,6 +262,7 @@ src/thermocouple.o \
 src/controller.o \
 src/settings.o \
 src/page_network.o \
+src/page_profile.o \
 src/standalone_lwip_demo_sam.o
 
 OBJS_AS_ARGS +=  \
@@ -331,6 +333,7 @@ src/thermocouple.o \
 src/controller.o \
 src/settings.o \
 src/page_network.o \
+src/page_profile.o \
 src/standalone_lwip_demo_sam.o
 
 C_DEPS +=  \
@@ -401,6 +404,7 @@ src/thermocouple.d \
 src/controller.d \
 src/settings.d \
 src/page_network.d \
+src/page_profile.d \
 src/standalone_lwip_demo_sam.d
 
 C_DEPS_AS_ARGS +=  \
@@ -471,6 +475,7 @@ src/thermocouple.d \
 src/controller.d \
 src/settings.d \
 src/page_network.d \
+src/page_profile.d \
 src/standalone_lwip_demo_sam.d
 
 OUTPUT_FILE_PATH +=LWIP_EXAMPLE1.elf

@@ -3,6 +3,7 @@
 #include "page_misc.h"
 #include "page_main.h"
 #include "page_network.h"
+#include "page_profile.h"
 #include "buttons.h"
 #include "drehgeber.h"
 #include "controller.h"
@@ -22,13 +23,14 @@ uint8_t focus_here;
 static struct menuitem menu[] = {
 //    Page Name | Number | Periodic | Drehgeber | Button | Init page
     {"Reflow Master", 0, update_main, main_drehgeber, main_button_pressed, page_main},
+    {"Profile", 0, update_profile, profile_drehgeber, profile_button_pressed, page_profile},
     {"Network Settings", 0, update_network, network_drehgeber, network_button_pressed, page_network}
 };
 
 void menu_init()
 {
     //NUM_PAGES = sizeof(struct menuitem) * sizeof(menu);
-    NUM_PAGES = 2;
+    NUM_PAGES = 3;
 
     draw_page_header(&menu[menu_position]);
     menu[menu_position].draw_func(&menu[menu_position]);
@@ -67,7 +69,6 @@ void menu_task()
         }
     }
     if (get_key_press(KEY1)) { //button left +1
-        controller_beep_times(1);
         if (menu[menu_position].taster_func) {
             focus_here =
                 menu[menu_position].taster_func(&menu[menu_position],
@@ -75,7 +76,6 @@ void menu_task()
         }
     }
     if (get_key_press(KEY2)) { //button right -1
-        controller_beep_times(3);
         if (menu[menu_position].taster_func) {
             focus_here =
                 menu[menu_position].taster_func(&menu[menu_position],

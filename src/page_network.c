@@ -68,6 +68,7 @@ void update_network(struct menuitem *self, uint8_t event)
 
 uint8_t network_button_pressed(struct menuitem *self, uint8_t button)
 {
+    return 1;
     if(button != 4){
         return state!=0;
     }
