@@ -5,6 +5,7 @@
 #include "page_network.h"
 #include "buttons.h"
 #include "drehgeber.h"
+#include "controller.h"
 
 
 #define TICK 0
@@ -66,6 +67,7 @@ void menu_task()
         }
     }
     if (get_key_press(KEY1)) { //button left +1
+        controller_beep_times(1);
         if (menu[menu_position].taster_func) {
             focus_here =
                 menu[menu_position].taster_func(&menu[menu_position],
@@ -73,6 +75,7 @@ void menu_task()
         }
     }
     if (get_key_press(KEY2)) { //button right -1
+        controller_beep_times(3);
         if (menu[menu_position].taster_func) {
             focus_here =
                 menu[menu_position].taster_func(&menu[menu_position],

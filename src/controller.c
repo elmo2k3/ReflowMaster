@@ -4,14 +4,15 @@
 
 #define TICK_1S 1
 #define TICK_100MS 2
+#define DEAD_TIME 30
 static uint8_t flags;
 
 uint8_t heating;
-uint8_t beep_short;
+uint8_t beep_times;
 
-void controller_beep_short()
+void controller_beep_times(int times)
 {
-	beep_short = 1;
+	beep_times = times;
 }
 
 void controller_init()
@@ -32,16 +33,18 @@ void controller_tick()
 		counter = 0;
 		flags |= TICK_1S;
 	}
-	if(beep_short){
-		beep_short = 0;
+	if(beep_times > 0 && !beep_off){
+		beep_times--;
 		beep_off = 1;
 		ioport_set_pin_level(PIN_BEEPER,1);
-	}else if(beep_off){
+	}else{
 		beep_off = 0;
 		ioport_set_pin_level(PIN_BEEPER,0);
 	}		
 }
-#define DEAD_TIME 30
+void controller_beep_3x()
+{
+}
 
 void controller_task()
 {
