@@ -189,7 +189,7 @@ http_recv(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
 
         //hs->file = file.data;
         //hs->left = file.len;
-		snprintf(string_to_send,100,"%ld",(int32_t)temperature_is);
+		snprintf(string_to_send,100,"%ld %ld",(int32_t)temperature_is,(int32_t)settings.temperature);
 		hs->file = string_to_send;
 		hs->left = strlen(string_to_send);
         /* printf("data %p len %ld\n", hs->file, hs->left);*/
