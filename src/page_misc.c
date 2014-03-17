@@ -105,7 +105,7 @@ void draw_settings_line_variable_space(char *name, char *value,
 {
     ks0108GotoXY(2, 17 + position * 11);
     ks0108Puts(name);
-    ks0108FillRect(space, 17 + position * 11, 27, 10, WHITE);
+    ks0108FillRect(space, 17 + position * 11, 127-space, 10, WHITE);
     ks0108GotoXY(space, 17 + position * 11);
     ks0108Puts(value);
 }

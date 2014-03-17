@@ -49,18 +49,13 @@ static void printTemperatureIs(uint8_t update)
     current_val = temperature_is;
 
     if (current_val != last_val) {
-        ks0108SelectFont(1, BLACK);
-        ks0108GotoXY(0, 17);
-        ks0108Puts("Temperature is:");
-        ks0108FillRect(85, 16, 42, 18, WHITE);
-        ks0108GotoXY(85, 17);
         if(current_val > 1000){
             snprintf(str,15, "ERR");
         }else{
             snprintf(str,15, "%03dC", current_val);
         }
-        ks0108SelectFont(3, BLACK);
-        ks0108Puts(str);
+        ks0108SelectFont(1, BLACK);
+        draw_settings_line("Temperature is:",str,0);
     }
     last_val = current_val;
 }
@@ -74,18 +69,54 @@ static void printTemperatureSet(uint8_t toggle)
     current_val = settings.temperature;
 
     if (current_val != last_val) {
-        ks0108SelectFont(1, BLACK);
-        ks0108GotoXY(0, 17 + 20);
-        ks0108Puts("Temperature set:");
-        ks0108FillRect(85, 16 + 18, 37, 18, WHITE);
-        ks0108GotoXY(85, 17 + 18);
         snprintf(str,15, "%03dC", current_val);
-        ks0108SelectFont(3, BLACK);
-        ks0108Puts(str);
+        ks0108SelectFont(1, BLACK);
+        draw_settings_line("Temperature set:",str,1);
         last_val = current_val;
     }else if(toggle){
-        ks0108FillRect(85, 16 + 18, 42, 20, WHITE);
+        draw_settings_line("Temperature set:","",1);
         last_val = -1; // force redraw next time
+    }
+}
+
+static void printSecondsToGo(uint8_t update)
+{
+    char str[15];
+    static int16_t last_val = -1;
+    int16_t current_val;
+
+    if(update){
+        last_val = -1;
+    }
+    current_val = controller_current_step_seconds_to_go();
+
+    if (current_val != last_val) {
+        snprintf(str,15, "%d", current_val);
+        ks0108SelectFont(1, BLACK);
+        draw_settings_line("Phase time:",str,2);
+        last_val = current_val;
+    }
+}
+
+static void printStepName(uint8_t update)
+{
+    char str[15];
+    char current_name[20];
+    static char last_name[20];
+
+    if(update){
+        strcpy(last_name,"asd");
+    }
+
+    if(controller_profile_running()){
+        strncpy(current_name,controller_get_active_phase_name(),20);
+    }else{
+        strcpy(current_name,"");
+    }
+    if(strncmp(current_name, last_name,20)){
+        ks0108SelectFont(1, BLACK);
+        draw_settings_line_variable_space("Current Phase:",current_name,3,90);
+        strncpy(last_name,current_name,20);
     }
 }
 
@@ -93,28 +124,21 @@ static void printOn(uint8_t on)
 {
     if(on){
         ks0108SelectFont(1, BLACK);
-        ks0108GotoXY(90, 55);
+        ks0108GotoXY(105, 3);
         ks0108Puts("ON");
     }else{
-        ks0108FillRect(90,55,57,10,WHITE);
+        ks0108FillRect(105,3,22,8,WHITE);
     }
 }
 
-static void printHeating(uint8_t on)
+static void printHeating()
 {
-    char buf[10];
-    static unsigned int last_val = 1024;
-    unsigned int current_val;
-
-    current_val = controller_current_step_seconds();
-    if(current_val != last_val){
+    if(heating){
         ks0108SelectFont(1, BLACK);
-        snprintf(buf,10,"%d",controller_current_step_seconds());
-        ks0108FillRect(0,55,57,10,WHITE);
-        ks0108GotoXY(0, 55);
-        ks0108Puts(buf);
-        last_val = current_val;
+        ks0108GotoXY(90, 3);
+        ks0108Puts("H");
     }else{
+        ks0108FillRect(90,3,10,8,WHITE);
     }
 }
 
@@ -126,6 +150,10 @@ void page_profile(struct menuitem *self)
     printTemperatureIs(0);
     printTemperatureSet(1);
     printTemperatureSet(0);
+    printSecondsToGo(1);
+    printSecondsToGo(0);
+    printStepName(1);
+    printStepName(0);
 }
 
 
@@ -133,8 +161,10 @@ void update_profile(struct menuitem *self, uint8_t event)
 {
     printTemperatureIs(0);
     printTemperatureSet(0);
-    printHeating(1);
+    printSecondsToGo(0);
     printOn(settings.on);
+    printHeating();
+    printStepName(0);
     switch (state) {
     case STATE_TEMPERATURE:
         printTemperatureSet(toggle == 0);
@@ -149,7 +179,11 @@ uint8_t profile_button_pressed(struct menuitem *self, uint8_t button)
 
     toggle = 0;
     if(button == 1){
-        controller_start_profile(&profiles[0]);
+        if(controller_profile_running()){
+            controller_stop_profile();
+        }else{
+            controller_start_profile(&profiles[0]);
+        }
     }else if (button == 2) {
         focus_not_here = 0;
         if (state == STATE_IDLE) {

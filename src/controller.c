@@ -12,8 +12,8 @@ uint8_t beep_times;
 
 struct profile profiles[] = {
 	{"Profile 1",2,
-		{{"Preheating",50.0,10,0,1},
-		{"Solder",100.0,10,0,1}}}
+		{{"Preheat",150.0,180,0,1},
+		{"Solder",240.0,10,0,1}}}
 };
 
 static struct profile *active_profile;
@@ -21,10 +21,40 @@ static unsigned int profile_step_number;
 static unsigned int profile_step_seconds;
 static bool profile_running;
 
+unsigned int controller_current_step_seconds_to_go()
+{
+	if(profile_running){
+		return active_profile->steps[profile_step_number].seconds - profile_step_seconds;
+	}else{
+		return 0;
+	}
+}
+
 unsigned int controller_current_step_seconds()
 {
 	return profile_step_seconds;
 }
+
+bool controller_profile_running()
+{
+	return profile_running;
+}
+
+unsigned int controller_step_number()
+{
+	return profile_step_number;
+}
+
+struct profile *controller_get_active_profile()
+{
+	return active_profile;
+}
+
+char *controller_get_active_phase_name()
+{
+	return active_profile->steps[profile_step_number].phase_name;
+}
+
 
 void controller_start_profile(struct profile *prf)
 {
@@ -92,6 +122,13 @@ static void controller_temperature_task(void)
 	temperature_is_last = temperature_is;
 }
 
+void controller_stop_profile()
+{	
+	profile_running = 0;
+	settings.on = 0;
+	settings.temperature = 20;
+}
+
 static void controller_profile_task(void)
 {
 	if(profile_running){
@@ -107,8 +144,7 @@ static void controller_profile_task(void)
 			profile_step_seconds = 0;
 		}
 		if(profile_step_number == active_profile->num_steps){
-			profile_running = 0;
-			settings.on = 0;
+			controller_stop_profile();
 			controller_beep_times(5);
 		}
 	}

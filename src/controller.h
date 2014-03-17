@@ -33,6 +33,12 @@ void controller_task(void);
 void controller_beep_times(int times);
 void controller_start_profile(struct profile *prf);
 unsigned int controller_current_step_seconds(void);
+unsigned int controller_current_step_seconds_to_go(void);
+bool controller_profile_running(void);
+void controller_stop_profile(void);
+unsigned int controller_step_number(void);
+struct profile *controller_get_active_profile(void);
+char *controller_get_active_phase_name(void);
 
 #endif
 
