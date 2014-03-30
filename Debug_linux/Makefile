@@ -185,6 +185,7 @@ C_SRCS +=  \
 ../src/settings.c \
 ../src/page_network.c \
 ../src/page_profile.c \
+../src/page_credits.c \
 ../src/standalone_lwip_demo_sam.c
 
 
@@ -263,6 +264,7 @@ src/controller.o \
 src/settings.o \
 src/page_network.o \
 src/page_profile.o \
+src/page_credits.o \
 src/standalone_lwip_demo_sam.o
 
 OBJS_AS_ARGS +=  \
@@ -334,6 +336,7 @@ src/controller.o \
 src/settings.o \
 src/page_network.o \
 src/page_profile.o \
+src/page_credits.o \
 src/standalone_lwip_demo_sam.o
 
 C_DEPS +=  \
@@ -405,6 +408,7 @@ src/controller.d \
 src/settings.d \
 src/page_network.d \
 src/page_profile.d \
+src/page_credits.d \
 src/standalone_lwip_demo_sam.d
 
 C_DEPS_AS_ARGS +=  \
@@ -476,6 +480,7 @@ src/controller.d \
 src/settings.d \
 src/page_network.d \
 src/page_profile.d \
+src/page_credits.d \
 src/standalone_lwip_demo_sam.d
 
 OUTPUT_FILE_PATH +=LWIP_EXAMPLE1.elf

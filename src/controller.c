@@ -13,7 +13,7 @@ uint8_t beep_times;
 struct profile profiles[] = {
 	{"Profile 1",2,
 		{{"Preheat",150.0,180,0,1},
-		{"Solder",240.0,10,0,1}}}
+		{"Solder",230.0,10,0,1}}}
 };
 
 static struct profile *active_profile;

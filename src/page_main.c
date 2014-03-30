@@ -52,7 +52,7 @@ void printTemperatureIs(uint8_t update)
     if (current_val != last_val) {
         ks0108SelectFont(1, BLACK);
         ks0108GotoXY(0, 17);
-        ks0108Puts("Temperature is:");
+        ks0108Puts("Temperatur ist:");
         ks0108FillRect(85, 16, 42, 18, WHITE);
         ks0108GotoXY(85, 17);
         if(current_val > 1000){
@@ -77,7 +77,7 @@ void printTemperatureSet(uint8_t toggle)
     if (current_val != last_val) {
         ks0108SelectFont(1, BLACK);
         ks0108GotoXY(0, 17 + 20);
-        ks0108Puts("Temperature set:");
+        ks0108Puts("Temperatur soll:");
         ks0108FillRect(85, 16 + 18, 37, 18, WHITE);
         ks0108GotoXY(85, 17 + 18);
         snprintf(str,15, "%03dC", current_val);

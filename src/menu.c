@@ -4,6 +4,7 @@
 #include "page_main.h"
 #include "page_network.h"
 #include "page_profile.h"
+#include "page_credits.h"
 #include "buttons.h"
 #include "drehgeber.h"
 #include "controller.h"
@@ -22,8 +23,9 @@ uint8_t focus_here;
 //#define NUM_PAGES 4
 static struct menuitem menu[] = {
 //    Page Name | Number | Periodic | Drehgeber | Button | Init page
-    {"Reflow Master", 0, update_main, main_drehgeber, main_button_pressed, page_main},
+    {"GA Reflow Ofen", 0, update_main, main_drehgeber, main_button_pressed, page_main},
     {"Profile", 0, update_profile, profile_drehgeber, profile_button_pressed, page_profile},
+    {"Credits V0.1  3/2014", 0, NULL, NULL, NULL, page_credits},
     {"Network Settings", 0, update_network, network_drehgeber, network_button_pressed, page_network}
 };
 

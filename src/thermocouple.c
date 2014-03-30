@@ -52,4 +52,5 @@ void thermocouple_task()
 	temperature_intern = ((data>>4) & 0xFFF);
 	f_temp_intern = temperature_intern / 16.0;
 	temperature_is = temperature_extern / 4.0;
+	temperature_is = (temperature_is - f_temp_intern)*1.37 + f_temp_intern;
 }

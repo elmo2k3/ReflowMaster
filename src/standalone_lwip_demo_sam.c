@@ -179,7 +179,7 @@ int main(void)
 	controller_init();
 
 	/* Bring up the ethernet interface & initializes timer0, channel0 */
-	init_ethernet();
+	//init_ethernet();
 	SysTick_Config(SystemCoreClock/100000); // 10us
 	ks0108Init();
 	menu_init();
@@ -188,7 +188,7 @@ int main(void)
 	while (1) {
 		/* Check if any packets are available and process if they are
 		 * ready. That function also manages the lwIP timers */
-		ethernet_task();
+		//ethernet_task();
 		thermocouple_task();
 		controller_task();
 		menu_task();
